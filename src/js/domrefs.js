@@ -56,6 +56,7 @@ const svgOutput = document.querySelector('.svg-output');
 const debugCheckbox = document.querySelector('.debug');
 const progress = document.querySelector('progress');
 const toast = document.querySelector('.toast');
+const statsDisplay = document.querySelector('.stats-display');
 const details = document.querySelector('details.main');
 const summary = document.querySelector('summary');
 const closeOptionsButton = document.querySelector('.close-options-button');
