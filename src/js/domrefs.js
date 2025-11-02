@@ -47,6 +47,7 @@ const inputImage = document.querySelector('img');
 const resetAllButton = document.querySelector('.reset-all');
 const fileOpenButton = document.querySelector('.open');
 const saveSVGButton = document.querySelector('.save');
+const exportPNGButton = document.querySelector('.export-png');
 const copyButton = document.querySelector('.copy');
 const shareSVGButton = document.querySelector('.share');
 const pasteButton = document.querySelector('.paste');
