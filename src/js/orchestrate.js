@@ -22,11 +22,20 @@ import {
   preProcessInputImage,
   supportsOffscreenCanvas,
 } from './preprocess.js';
-import { colorRadio, svgOutput } from './domrefs.js';
+import { colorRadio, svgOutput, previewModeSelect } from './domrefs.js';
 import { convertToMonochromeSVG } from './monochrome.js';
 import { convertToColorSVG, intervalID } from './color.js';
-import { showToast, MONOCHROME, COLOR } from './ui.js';
+import { showToast, MONOCHROME, COLOR, filterInputs, POTRACE } from './ui.js';
 import { i18n } from './i18n.js';
+import { simplifySVGPaths } from './pathsimplify.js';
+import { smoothSVGPaths } from './pathsmooth.js';
+import { mergeSVGPaths } from './pathmerge.js';
+import { removeSmallRegions } from './remove-small-regions.js';
+import { extractSVGOutline } from './pathoutline.js';
+import { groupPaths } from './pathgroup.js';
+import { reduceColorCount } from './colorquantize.js';
+import { applyPreviewMode } from './previewmode.js';
+import { getSVGStats } from './stats.js';
 
 import spinnerSVG from '/spinner.svg?raw';
 
@@ -44,10 +53,53 @@ const displayResult = (svg, className) => {
   svg = svg
     .replace(/\s+width="\d+(?:\.\d+)?"/, '')
     .replace(/\s+height="\d+(?:\.\d+)"/, '');
+  
+  // Apply preview mode if set
+  const previewMode = previewModeSelect?.value || 'normal';
+  if (previewMode !== 'normal') {
+    svg = applyPreviewMode(svg, previewMode, 2);
+  }
+  
   svgOutput.classList.remove(COLOR);
   svgOutput.classList.remove(MONOCHROME);
   svgOutput.classList.add(className);
   svgOutput.innerHTML = svg;
+  
+  // Display statistics
+  const stats = getSVGStats(svg);
+  const statsDisplay = document.querySelector('.stats-display');
+  if (statsDisplay) {
+    statsDisplay.hidden = false;
+    statsDisplay.innerHTML = `
+      <div>${i18n.t('pathCount')}: ${stats.pathCount}</div>
+      <div>${i18n.t('nodeCount')}: ${stats.nodeCount}</div>
+      <div>${i18n.t('colorCount')}: ${stats.colorCount}</div>
+      <div>${i18n.t('svgSize')}: ${readableSize(svg.length)}</div>
+    `;
+  }
+  
+  // Enable path editor if checked
+  const pathEditorEnabledCheckbox = document.querySelector('.path-editor-enabled');
+  if (pathEditorEnabledCheckbox?.checked) {
+    setTimeout(async () => {
+      const svgElement = svgOutput.closest('svg') || svgOutput;
+      const { enablePathEditor } = await import('./patheditor.js');
+      enablePathEditor(svgElement, (path, newPathData) => {
+        // Path updated callback - update statistics
+        const updatedSvg = svgElement.innerHTML;
+        const updatedStats = getSVGStats(updatedSvg);
+        if (statsDisplay) {
+          statsDisplay.innerHTML = `
+            <div>${i18n.t('pathCount')}: ${updatedStats.pathCount}</div>
+            <div>${i18n.t('nodeCount')}: ${updatedStats.nodeCount}</div>
+            <div>${i18n.t('colorCount')}: ${updatedStats.colorCount}</div>
+            <div>${i18n.t('svgSize')}: ${readableSize(updatedSvg.length)}</div>
+          `;
+        }
+      });
+    }, 100);
+  }
+  
   showToast(`${i18n.t('svgSize')}: ${readableSize(svg.length)}`, 3000);
 };
 
@@ -68,13 +120,87 @@ const startProcessing = async () => {
     ? await preProcessInputImage()
     : preProcessMainCanvas();
   if (colorRadio.checked) {
-    const svg = await convertToColorSVG(imageData);
+    let svg = await convertToColorSVG(imageData);
+    // Apply path simplification if enabled
+    const simplifyTolerance = Number(filterInputs[POTRACE.pathSimplify]?.value || 0);
+    if (simplifyTolerance > 0) {
+      svg = simplifySVGPaths(svg, simplifyTolerance);
+    }
+    // Apply path smoothing if enabled
+    const smoothness = Number(filterInputs[POTRACE.pathSmooth]?.value || 0);
+    if (smoothness > 0) {
+      svg = smoothSVGPaths(svg, smoothness / 100);
+    }
+    // Apply path merging if enabled
+    const pathMergeEnabledCheckbox = document.querySelector('.path-merge-enabled');
+    const pathMergeEnabled = pathMergeEnabledCheckbox?.checked || false;
+    if (pathMergeEnabled) {
+      svg = mergeSVGPaths(svg);
+    }
+    // Remove small regions if enabled
+    const removeSmallThreshold = Number(filterInputs[POTRACE.removeSmallRegions]?.value || 0);
+    if (removeSmallThreshold > 0) {
+      svg = removeSmallRegions(svg, removeSmallThreshold, 'dimension');
+    }
+    // Extract outline if enabled
+    const outlineWidth = Number(filterInputs[POTRACE.pathOutline]?.value || 0);
+    if (outlineWidth > 0) {
+      svg = extractSVGOutline(svg, outlineWidth);
+    }
+    // Group paths if enabled
+    const pathGroupEnabledCheckbox = document.querySelector('.path-group-enabled');
+    const pathGroupEnabled = pathGroupEnabledCheckbox?.checked || false;
+    if (pathGroupEnabled) {
+      svg = groupPaths(svg, { byColor: true, byProximity: false });
+    }
+    // Optimize color quantization if enabled
+    const colorQuantization = Number(filterInputs[POTRACE.colorQuantization]?.value || 0);
+    if (colorQuantization > 0 && colorQuantization < 256) {
+      svg = reduceColorCount(svg, colorQuantization);
+    }
     if (transform) {
       svgOutput.setAttribute('transform', transform);
     }
     displayResult(svg, COLOR);
   } else {
-    const svg = await convertToMonochromeSVG(imageData);
+    let svg = await convertToMonochromeSVG(imageData);
+    // Apply path simplification if enabled
+    const simplifyTolerance = Number(filterInputs[POTRACE.pathSimplify]?.value || 0);
+    if (simplifyTolerance > 0) {
+      svg = simplifySVGPaths(svg, simplifyTolerance);
+    }
+    // Apply path smoothing if enabled
+    const smoothness = Number(filterInputs[POTRACE.pathSmooth]?.value || 0);
+    if (smoothness > 0) {
+      svg = smoothSVGPaths(svg, smoothness / 100);
+    }
+    // Apply path merging if enabled
+    const pathMergeEnabledCheckbox = document.querySelector('.path-merge-enabled');
+    const pathMergeEnabled = pathMergeEnabledCheckbox?.checked || false;
+    if (pathMergeEnabled) {
+      svg = mergeSVGPaths(svg);
+    }
+    // Remove small regions if enabled
+    const removeSmallThreshold = Number(filterInputs[POTRACE.removeSmallRegions]?.value || 0);
+    if (removeSmallThreshold > 0) {
+      svg = removeSmallRegions(svg, removeSmallThreshold, 'dimension');
+    }
+    // Extract outline if enabled
+    const outlineWidth = Number(filterInputs[POTRACE.pathOutline]?.value || 0);
+    if (outlineWidth > 0) {
+      svg = extractSVGOutline(svg, outlineWidth);
+    }
+    // Group paths if enabled
+    const pathGroupEnabledCheckbox = document.querySelector('.path-group-enabled');
+    const pathGroupEnabled = pathGroupEnabledCheckbox?.checked || false;
+    if (pathGroupEnabled) {
+      svg = groupPaths(svg, { byColor: true, byProximity: false });
+    }
+    // Optimize color quantization if enabled
+    const colorQuantization = Number(filterInputs[POTRACE.colorQuantization]?.value || 0);
+    if (colorQuantization > 0 && colorQuantization < 256) {
+      svg = reduceColorCount(svg, colorQuantization);
+    }
     if (transform) {
       svgOutput.setAttribute('transform', transform);
     }

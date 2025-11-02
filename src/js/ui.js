@@ -21,6 +21,15 @@ import {
   detailsContainer,
   posterizeCheckbox,
   posterizeLabel,
+  extractSubjectCheckbox,
+  extractSubjectLabel,
+  pathMergeEnabledCheckbox,
+  pathMergeEnabledLabel,
+  pathGroupEnabledCheckbox,
+  pathGroupEnabledLabel,
+  pathEditorEnabledCheckbox,
+  pathEditorEnabledLabel,
+  previewModeSelect,
   colorRadio,
   colorLabel,
   monochromeRadio,
@@ -97,6 +106,7 @@ const FILTERS = {
   opacity: 'opacity',
   saturate: 'saturate',
   sepia: 'sepia',
+  edgeDetectionMode: 'edgeDetectionMode',
 };
 
 const COLORS = { red: 'red', green: 'green', blue: 'blue', alpha: 'alpha' };
@@ -111,6 +121,12 @@ const POTRACE = {
   turnpolicy: 'turnpolicy',
   opticurve: 'opticurve',
   opttolerance: 'opttolerance',
+  pathSimplify: 'pathSimplify',
+  pathSmooth: 'pathSmooth',
+  removeSmallRegions: 'removeSmallRegions',
+  pathOutline: 'pathOutline',
+  pathGroup: 'pathGroup',
+  colorQuantization: 'colorQuantization',
 };
 
 const filters = {
@@ -143,6 +159,11 @@ const potraceOptions = {
   [POTRACE.alphamax]: { unit: NONE, initial: 1.0, min: 0.0, max: 1.3334 },
   [POTRACE.turnpolicy]: { unit: STEPS, initial: 4, min: 0, max: 6 },
   [POTRACE.opttolerance]: { unit: NONE, initial: 0.2, min: 0, max: 1 },
+  [POTRACE.pathSimplify]: { unit: PIXELS, initial: 0, min: 0, max: 10 },
+  [POTRACE.pathSmooth]: { unit: PERCENT, initial: 0, min: 0, max: 100 },
+  [POTRACE.removeSmallRegions]: { unit: PIXELS, initial: 0, min: 0, max: 100 },
+  [POTRACE.pathOutline]: { unit: PIXELS, initial: 0, min: 0, max: 20 },
+  [POTRACE.colorQuantization]: { unit: NONE, initial: 0, min: 0, max: 256 },
 };
 
 const detailsArray = [
@@ -303,12 +324,67 @@ posterizeCheckbox.addEventListener('change', async () => {
   await startProcessing();
 });
 
+extractSubjectCheckbox.addEventListener('change', async () => {
+  await storeSettings(extractSubjectCheckbox);
+  await startProcessing();
+});
+
+pathMergeEnabledCheckbox.addEventListener('change', async () => {
+  await storeSettings(pathMergeEnabledCheckbox);
+  await startProcessing();
+});
+
+pathGroupEnabledCheckbox.addEventListener('change', async () => {
+  await storeSettings(pathGroupEnabledCheckbox);
+  await startProcessing();
+});
+
+pathEditorEnabledCheckbox.addEventListener('change', async () => {
+  await storeSettings(pathEditorEnabledCheckbox);
+  // Path editor is enabled/disabled after SVG is generated
+  if (pathEditorEnabledCheckbox.checked) {
+    const svgOutput = document.querySelector('.svg-output');
+    if (svgOutput && svgOutput.innerHTML) {
+      const svgElement = svgOutput.closest('svg') || svgOutput;
+      const { enablePathEditor } = await import('./patheditor.js');
+      enablePathEditor(svgElement, (path, newPathData) => {
+        // Path updated callback
+        console.log('Path updated:', newPathData);
+      });
+    }
+  } else {
+    const svgOutput = document.querySelector('.svg-output');
+    if (svgOutput) {
+      const svgElement = svgOutput.closest('svg') || svgOutput;
+      const { disablePathEditor } = await import('./patheditor.js');
+      disablePathEditor(svgElement);
+    }
+  }
+});
+
+previewModeSelect.addEventListener('change', async () => {
+  await storeSettings(previewModeSelect);
+  await startProcessing();
+});
+
 const restoreState = async () => {
   const settings = await getSettings();
 
   posterizeCheckbox.checked =
     settings[posterizeCheckbox.id] ?? posterizeCheckbox.defaultChecked;
   posterizeCheckboxOnChange();
+
+  extractSubjectCheckbox.checked =
+    settings[extractSubjectCheckbox.id] ?? extractSubjectCheckbox.defaultChecked;
+
+  pathMergeEnabledCheckbox.checked =
+    settings[pathMergeEnabledCheckbox.id] ?? pathMergeEnabledCheckbox.defaultChecked;
+
+  pathGroupEnabledCheckbox.checked =
+    settings[pathGroupEnabledCheckbox.id] ?? pathGroupEnabledCheckbox.defaultChecked;
+
+  pathEditorEnabledCheckbox.checked =
+    settings[pathEditorEnabledCheckbox.id] ?? pathEditorEnabledCheckbox.defaultChecked;
 
   considerDPRCheckbox.checked =
     settings[considerDPRCheckbox.id] ?? considerDPRCheckbox.defaultChecked;
@@ -515,6 +591,10 @@ const changeLanguage = () => {
 
   resetAllButton.textContent = i18n.t('resetAll');
   posterizeLabel.textContent = i18n.t('posterizeInputImage');
+  extractSubjectLabel.textContent = i18n.t('extractSubject');
+  pathMergeEnabledLabel.textContent = i18n.t('pathMergeEnabled');
+  pathGroupEnabledLabel.textContent = i18n.t('pathGroupEnabled');
+  pathEditorEnabledLabel.textContent = i18n.t('pathEditorEnabled');
   colorLabel.textContent = i18n.t('colorSVG');
   monochromeLabel.textContent = i18n.t('monochromeSVG');
   considerDPRLabel.textContent = i18n.t('considerDPR');
