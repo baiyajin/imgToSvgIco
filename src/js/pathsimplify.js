@@ -241,5 +241,5 @@ const simplifySVGPaths = (svg, tolerance = 1.0) => {
   });
 };
 
-export { simplifyPath, simplifySVGPaths };
+export { parsePathData, pointsToPathData, simplifyPath, simplifySVGPaths };
 
