@@ -155,6 +155,38 @@
               </div>
               <div class="other-input">
                 <input
+                  id="extract-subject"
+                  type="checkbox"
+                  class="extract-subject"
+                />
+                <label for="extract-subject"></label>
+              </div>
+              <div class="other-input">
+                <input
+                  id="path-merge-enabled"
+                  type="checkbox"
+                  class="path-merge-enabled"
+                />
+                <label for="path-merge-enabled"></label>
+              </div>
+              <div class="other-input">
+                <input
+                  id="path-group-enabled"
+                  type="checkbox"
+                  class="path-group-enabled"
+                />
+                <label for="path-group-enabled"></label>
+              </div>
+              <div class="other-input">
+                <input
+                  id="path-editor-enabled"
+                  type="checkbox"
+                  class="path-editor-enabled"
+                />
+                <label for="path-editor-enabled"></label>
+              </div>
+              <div class="other-input">
+                <input
                   id="show-advanced"
                   type="checkbox"
                   class="show-advanced"
@@ -202,6 +234,12 @@
           <button class="install menu" type="button"></button>
           <progress hidden value="0" max="100"></progress>
           <label hidden><input class="debug" type="checkbox" /> Debug</label>
+          <select class="preview-mode-select" title="Preview Mode">
+            <option value="normal">Normal</option>
+            <option value="fill-only">Fill Only</option>
+            <option value="outline-only">Outline Only</option>
+            <option value="wireframe">Wireframe</option>
+          </select>
         </div>
         <img
           class="input-image"

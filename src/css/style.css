@@ -567,3 +567,41 @@ dark-mode-toggle:hover {
 
   border-color: var(--main-accent-color);
 }
+
+/* Path Editor Styles */
+.path-editor-overlay {
+  pointer-events: all;
+}
+
+.path-editor-overlay .path-node {
+  pointer-events: all;
+  cursor: move;
+  opacity: 0.8;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.path-editor-overlay .path-node:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.path-editor-overlay .path-node:active {
+  transform: scale(1.4);
+}
+
+.stats-display {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: var(--canvas);
+  border: solid 1px var(--canvas-text);
+  border-radius: var(--space);
+  padding: var(--space);
+  font-size: 0.875rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.stats-display > div {
+  margin: calc(var(--space) / 2) 0;
+}

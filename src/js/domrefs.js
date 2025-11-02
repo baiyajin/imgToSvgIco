@@ -23,6 +23,14 @@ const main = document.querySelector('main');
 const detailsContainer = document.querySelector('.details');
 const posterizeCheckbox = document.querySelector('.posterize');
 const posterizeLabel = document.querySelector('[for=posterize]');
+const extractSubjectCheckbox = document.querySelector('.extract-subject');
+const extractSubjectLabel = document.querySelector('[for="extract-subject"]');
+const pathMergeEnabledCheckbox = document.querySelector('.path-merge-enabled');
+const pathMergeEnabledLabel = document.querySelector('[for="path-merge-enabled"]');
+const pathGroupEnabledCheckbox = document.querySelector('.path-group-enabled');
+const pathGroupEnabledLabel = document.querySelector('[for="path-group-enabled"]');
+const pathEditorEnabledCheckbox = document.querySelector('.path-editor-enabled');
+const pathEditorEnabledLabel = document.querySelector('[for="path-editor-enabled"]');
 const colorRadio = document.querySelector('.color');
 const colorLabel = document.querySelector('[for=color]');
 const monochromeRadio = document.querySelector('.monochrome');
@@ -55,6 +63,7 @@ const aboutLink = document.querySelector('.about');
 const pinchZoom = document.querySelector('pinch-zoom');
 const languageSelect = document.querySelector('.language');
 const darkModeToggle = document.querySelector('dark-mode-toggle');
+const previewModeSelect = document.querySelector('.preview-mode-select');
 const documentElement = document.documentElement;
 const metaThemeColor = document.querySelector('meta[name=theme-color]');
 
@@ -67,6 +76,14 @@ export {
   detailsContainer,
   posterizeCheckbox,
   posterizeLabel,
+  extractSubjectCheckbox,
+  extractSubjectLabel,
+  pathMergeEnabledCheckbox,
+  pathMergeEnabledLabel,
+  pathGroupEnabledCheckbox,
+  pathGroupEnabledLabel,
+  pathEditorEnabledCheckbox,
+  pathEditorEnabledLabel,
   colorRadio,
   colorLabel,
   monochromeRadio,
@@ -81,6 +98,7 @@ export {
   resetAllButton,
   fileOpenButton,
   saveSVGButton,
+  exportPNGButton,
   shareSVGButton,
   copyButton,
   pasteButton,
@@ -90,6 +108,7 @@ export {
   debugCheckbox,
   toast,
   progress,
+  statsDisplay,
   details,
   summary,
   closeOptionsButton,
@@ -99,5 +118,6 @@ export {
   pinchZoom,
   languageSelect,
   darkModeToggle,
+  previewModeSelect,
   metaThemeColor,
 };
