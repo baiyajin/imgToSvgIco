@@ -503,13 +503,10 @@ const initUI = async () => {
 
 const checkPermissions = async (handle) => {
   const options = { mode: 'read' };
-  if ((await handle.queryPermission(options)) === 'granted') {
-    return true;
-  }
-  if ((await handle.requestPermission(options)) === 'granted') {
-    return true;
-  }
-  return false;
+  const permissionStatus = await handle.queryPermission(options);
+  // Only return true if permission is already granted.
+  // Do not request permission here as it requires user activation.
+  return permissionStatus === 'granted';
 };
 
 const changeLanguage = () => {

@@ -1,0 +1,4 @@
+ui.js:495 
+ SecurityError Failed to execute 'requestPermission' on 'FileSystemHandle': User activation is required to request permissions.
+﻿
+
