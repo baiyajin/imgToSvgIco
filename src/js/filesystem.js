@@ -29,6 +29,7 @@ import { clearToast, showToast } from './ui.js';
 import { optimizeSVG } from './svgo.js';
 import { i18n } from './i18n.js';
 import { set, get } from 'idb-keyval';
+import { exportSVG } from './export.js';
 
 const FILE_HANDLE = 'fileHandle';
 
