@@ -1,0 +1,63 @@
+/**
+ * SVGcode—Convert raster images to SVG vector graphics
+ * Copyright (C) 2021 Google LLC
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+:root {
+  --main-accent-color: hotpink;
+  --alternative-accent-color: #337eff;
+  --canvas-text: #fff;
+  --canvas: #131313;
+
+  background-color: var(--canvas);
+  color: var(--canvas-text);
+}
+
+.dropenter::before {
+  background-color: #131313dd;
+}
+
+.monochrome svg {
+  filter: invert(100%);
+}
+
+button {
+  color: var(--canvas-text);
+}
+
+button.with-bg {
+  background-color: var(--canvas);
+}
+
+.checkerboard {
+  background-image: linear-gradient(
+      45deg,
+      #131313 25%,
+      transparent 25%,
+      transparent 75%,
+      #131313 75%,
+      #131313 100%
+    ),
+    linear-gradient(
+      45deg,
+      #131313 25%,
+      #000 25%,
+      #000 75%,
+      #131313 75%,
+      #131313 100%
+    );
+}

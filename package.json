@@ -1,0 +1,70 @@
+{
+  "name": "SVGcode",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "npm run dev",
+    "start-with-sw": "npm run build && npm run serve",
+    "dev": "vite",
+    "icons": "node ./scripts/icons.mjs",
+    "build": "vite build && shx echo \"svgco.de\" > docs/CNAME && shx touch docs/.nojekyll && git add docs/",
+    "prepare": "npm run icons && npm run build",
+    "serve": "vite preview",
+    "https-preview": "serve docs",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:esm",
+    "lint:esm": "npx find-unused-exports",
+    "lint:js": "npx eslint . --ext .js,.mjs --fix --ignore-pattern docs/",
+    "lint:css": "npx stylelint \"**/*.css\" --fix",
+    "fix": "npx prettier . --write",
+    "deploy": "npm run fix && npm run lint && npm run build && git commit -a && git push",
+    "oculus": "cd src && ovr-platform-util create-pwa -o output.apk --android-sdk ~/bin/android-10 --manifest-content-file manifest.json --package-name de.svgco"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "browser-fs-access": "^0.35.0",
+    "browserlist": "^1.0.1",
+    "canvas-size": "^2.0.0",
+    "dark-mode-toggle": "^0.15.0",
+    "esm-potrace-wasm": "^0.2.1",
+    "idb-keyval": "^6.2.1",
+    "module-workers-polyfill": "^0.3.2",
+    "pinch-zoom-element": "^1.1.1",
+    "svgo": "^3.2.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-dynamic-import-vars": "^2.1.2",
+    "eslint": "^9.39.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "find-unused-exports": "^5.0.0",
+    "https-localhost": "^4.7.1",
+    "napa": "^3.0.0",
+    "node-fetch": "^3.3.2",
+    "prettier": "^3.2.5",
+    "shx": "^0.3.4",
+    "stylelint": "^16.2.1",
+    "stylelint-config-standard": "^36.0.0",
+    "stylelint-order": "^6.0.4",
+    "vite": "^5.1.5",
+    "vite-plugin-pwa": "^0.19.2",
+    "workbox-window": "^7.3.0"
+  },
+  "eslintConfig": {
+    "plugins": [
+      "eslint-plugin-node"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020,
+      "sourceType": "module"
+    },
+    "extends": [
+      "google",
+      "prettier"
+    ],
+    "rules": {
+      "valid-jsdoc": "off"
+    }
+  }
+}
