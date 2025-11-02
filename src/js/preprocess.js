@@ -28,11 +28,14 @@ import {
   inputImage,
   canvasMain,
   posterizeCheckbox,
+  extractSubjectCheckbox,
   dpr,
   considerDPRCheckbox,
   svgOutput,
 } from './domrefs.js';
 import canvasSize from 'canvas-size';
+import { extractSubject } from './subjectextract.js';
+import { applyEdgeDetection } from './edgedetection.js';
 
 let preProcessInputImage;
 let preProcessMainCanvas;
@@ -85,8 +88,26 @@ if (supportsOffscreenCanvas) {
           }
           canvasMain.width = width;
           canvasMain.height = height;
-          ctxCanvasMain.putImageData(data.result, 0, 0);
-          resolve(data.result);
+          let imageData = data.result;
+          // Apply edge detection if enabled
+          const edgeDetectionEnabled = filterInputs?.edgeDetectionMode?.value;
+          if (edgeDetectionEnabled && edgeDetectionEnabled !== 'none') {
+            imageData = applyEdgeDetection(imageData, edgeDetectionEnabled, {
+              threshold: 50,
+              lowThreshold: 50,
+              highThreshold: 100,
+            });
+          }
+          // Apply subject extraction if enabled
+          if (extractSubjectCheckbox.checked) {
+            imageData = extractSubject(imageData, {
+              threshold: 30,
+              detectEdges: true,
+              keepCorners: true,
+            });
+          }
+          ctxCanvasMain.putImageData(imageData, 0, 0);
+          resolve(imageData);
         };
 
         preProcessWorker.postMessage(
@@ -160,8 +181,26 @@ if (supportsOffscreenCanvas) {
         Math.floor((imgData.data[i + 3] / 255) * (alphaSteps - 1)) *
         (255 / (alphaSteps - 1));
     }
-    ctxMain.putImageData(imgData, 0, 0);
-    return imgData;
+    let resultData = imgData;
+    // Apply edge detection if enabled
+    const edgeDetectionEnabled = filterInputs?.edgeDetectionMode?.value;
+    if (edgeDetectionEnabled && edgeDetectionEnabled !== 'none') {
+      resultData = applyEdgeDetection(imgData, edgeDetectionEnabled, {
+        threshold: 50,
+        lowThreshold: 50,
+        highThreshold: 100,
+      });
+    }
+    // Apply subject extraction if enabled
+    if (extractSubjectCheckbox.checked) {
+      resultData = extractSubject(resultData, {
+        threshold: 30,
+        detectEdges: true,
+        keepCorners: true,
+      });
+    }
+    ctxMain.putImageData(resultData, 0, 0);
+    return resultData;
   };
 }
 
