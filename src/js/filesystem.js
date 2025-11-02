@@ -22,6 +22,7 @@ import {
   inputImage,
   fileOpenButton,
   saveSVGButton,
+  exportPNGButton,
   svgOutput,
   documentElement,
 } from './domrefs.js';
@@ -111,6 +112,10 @@ document.addEventListener('drop', async (event) => {
     blobURL = URL.createObjectURL(file);
     inputImage.src = blobURL;
   }
+});
+
+exportPNGButton.addEventListener('click', async () => {
+  await exportSVG('png');
 });
 
 saveSVGButton.addEventListener('click', async () => {
